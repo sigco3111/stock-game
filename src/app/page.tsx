@@ -243,6 +243,14 @@ export default function Home() {
   );
 
   // ----------------------------------------
+  // Dismiss quiz (clear currentQuiz from state)
+  // ----------------------------------------
+  const handleDismissQuiz = useCallback(() => {
+    if (!game) return;
+    setGame({ ...game, currentQuiz: null, quizAnswered: false, quizCorrect: false });
+  }, [game]);
+
+  // ----------------------------------------
   // Handle season report close
   // ----------------------------------------
   const handleSeasonReportClose = useCallback(() => {
@@ -458,6 +466,7 @@ export default function Home() {
         onTrade={handleTrade}
         onAdvanceTurn={handleAdvanceTurn}
         onAnswerQuiz={handleAnswerQuiz}
+        onDismissQuiz={handleDismissQuiz}
         onCloseSeasonReport={handleSeasonReportClose}
         onDismissAchievement={handleDismissAchievement}
       />

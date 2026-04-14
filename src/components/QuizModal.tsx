@@ -9,6 +9,7 @@ interface QuizModalProps {
   answered: boolean;
   isCorrect: boolean | null;
   onAnswer: (optionIndex: number) => void;
+  onDismiss: () => void;
   timeLimit?: number;
 }
 
@@ -17,6 +18,7 @@ export default function QuizModal({
   answered,
   isCorrect,
   onAnswer,
+  onDismiss,
   timeLimit = 15,
 }: QuizModalProps) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
@@ -56,8 +58,12 @@ export default function QuizModal({
         onAnswer(idx);
         setAnimating(false);
       }, 300);
+      // 정답/오답 결과를 2초간 보여준 뒤 모달 닫기 요청
+      setTimeout(() => {
+        onDismiss();
+      }, 2300);
     },
-    [answered, animating, onAnswer]
+    [answered, animating, onAnswer, onDismiss]
   );
 
   // 타임아웃 시 자동 오답 처리

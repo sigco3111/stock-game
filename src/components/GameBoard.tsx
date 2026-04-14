@@ -25,6 +25,7 @@ interface GameBoardProps {
   onTrade: (stockCode: string, action: 'buy' | 'sell', quantity: number) => void;
   onAdvanceTurn: () => void;
   onAnswerQuiz: (optionIndex: number) => void;
+  onDismissQuiz: () => void;
   onCloseSeasonReport: () => void;
   onDismissAchievement: () => void;
 }
@@ -40,6 +41,7 @@ export default function GameBoard({
   onTrade,
   onAdvanceTurn,
   onAnswerQuiz,
+  onDismissQuiz,
   onCloseSeasonReport,
   onDismissAchievement,
 }: GameBoardProps) {
@@ -115,6 +117,7 @@ export default function GameBoard({
           answered={game.quizAnswered}
           isCorrect={game.quizCorrect}
           onAnswer={onAnswerQuiz}
+          onDismiss={onDismissQuiz}
         />
       )}
 
