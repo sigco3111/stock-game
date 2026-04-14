@@ -9,6 +9,7 @@ import {
   executeBuy,
   executeSell,
   answerQuiz,
+  generateSeasonReport,
 } from '@/lib/game-engine';
 import { calculateRankings } from '@/lib/ai-players';
 import {
@@ -143,7 +144,6 @@ export default function Home() {
           : executeSell(game, stockCode, quantity);
 
       if (!result.success) {
-        // Could show a toast notification here
         console.warn('Trade failed:', result.message);
         return;
       }
@@ -161,7 +161,6 @@ export default function Home() {
         newIds.add(newAchievement.id);
         prevAchievementsRef.current = newIds;
         setLatestAchievement(newAchievement);
-        // Auto-dismiss after 3 seconds
         setTimeout(() => setLatestAchievement(null), 3000);
       }
 
@@ -171,6 +170,63 @@ export default function Home() {
     },
     [game]
   );
+
+  // ----------------------------------------
+  // Advance to next turn
+  // ----------------------------------------
+  const handleAdvanceTurn = useCallback(() => {
+    if (!game) return;
+
+    // Process AI decisions
+    const turnResult = processTurn(game);
+    const advancedGame = advanceTurn(game, turnResult);
+
+    // Apply stock price changes from turn result
+    const updatedStocks = advancedGame.stocks.map((stock) => {
+      const change = turnResult.priceChanges[stock.code];
+      if (change === undefined) return stock;
+      const original = game.stocks.find((s) => s.code === stock.code);
+      if (!original) return stock;
+      const newPrice = Math.max(100, Math.round(original.currentPrice * (1 + change / 100)));
+      return {
+        ...stock,
+        previousPrice: original.currentPrice,
+        currentPrice: newPrice,
+        priceHistory: [...original.priceHistory, newPrice],
+      };
+    });
+
+    const fullGame = { ...advancedGame, stocks: updatedStocks };
+    const newRankings = calculateRankings(fullGame.players, fullGame.stocks);
+
+    // Check for new achievements
+    const prevIds = prevAchievementsRef.current;
+    const newAchievement = fullGame.achievements.find(
+      (a) => a.unlocked && !prevIds.has(a.id)
+    );
+    if (newAchievement) {
+      const newIds = new Set(prevIds);
+      newIds.add(newAchievement.id);
+      prevAchievementsRef.current = newIds;
+      setLatestAchievement(newAchievement);
+      setTimeout(() => setLatestAchievement(null), 3000);
+    }
+
+    // Check if season ended
+    if (fullGame.seasonTurn >= fullGame.turnsPerSeason) {
+      const report = generateSeasonReport(fullGame);
+      setSeasonReport(report);
+    }
+
+    setGame(fullGame);
+    setRankings(newRankings);
+    saveGame(fullGame);
+
+    // If season ended, show report
+    if (fullGame.seasonTurn >= fullGame.turnsPerSeason) {
+      setScreen('REPORT');
+    }
+  }, [game]);
 
   // ----------------------------------------
   // Handle quiz answer
@@ -400,6 +456,7 @@ export default function Home() {
         selectedStockCode={selectedStockCode}
         onSelectStock={setSelectedStockCode}
         onTrade={handleTrade}
+        onAdvanceTurn={handleAdvanceTurn}
         onAnswerQuiz={handleAnswerQuiz}
         onCloseSeasonReport={handleSeasonReportClose}
         onDismissAchievement={handleDismissAchievement}

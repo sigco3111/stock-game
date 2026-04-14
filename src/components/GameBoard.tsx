@@ -23,6 +23,7 @@ interface GameBoardProps {
   selectedStockCode: string | null;
   onSelectStock: (code: string) => void;
   onTrade: (stockCode: string, action: 'buy' | 'sell', quantity: number) => void;
+  onAdvanceTurn: () => void;
   onAnswerQuiz: (optionIndex: number) => void;
   onCloseSeasonReport: () => void;
   onDismissAchievement: () => void;
@@ -37,6 +38,7 @@ export default function GameBoard({
   selectedStockCode,
   onSelectStock,
   onTrade,
+  onAdvanceTurn,
   onAnswerQuiz,
   onCloseSeasonReport,
   onDismissAchievement,
@@ -90,6 +92,7 @@ export default function GameBoard({
             difficulty={game.difficulty}
             selectedStockCode={selectedStockCode}
             onTrade={onTrade}
+            onAdvanceTurn={onAdvanceTurn}
           />
         </div>
 

@@ -11,6 +11,7 @@ interface TradingPanelProps {
   difficulty: Difficulty;
   selectedStockCode: string | null;
   onTrade: (stockCode: string, action: 'buy' | 'sell', quantity: number) => void;
+  onAdvanceTurn: () => void;
 }
 
 function formatPrice(n: number): string {
@@ -24,6 +25,7 @@ export default function TradingPanel({
   difficulty,
   selectedStockCode,
   onTrade,
+  onAdvanceTurn,
 }: TradingPanelProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [action, setAction] = useState<'buy' | 'sell'>('buy');
@@ -99,10 +101,10 @@ export default function TradingPanel({
             매도
           </button>
           <button
-            onClick={() => {}}
+            onClick={onAdvanceTurn}
             className="py-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold text-sm transition-all duration-150"
           >
-            홀드
+            ⏭️ 대기
           </button>
         </div>
         <div className="mt-3 text-xs text-gray-500">
